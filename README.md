@@ -1,20 +1,39 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Karka English
 
-# Run and deploy your AI Studio app
+Kannada-English learning webapp powered by Llama 3.3 70B (via Groq) with Firebase auth and Firestore caching.
 
-This contains everything you need to run your app locally.
+## Features
+- Word meaning lookup (English → Kannada) with AI
+- Vocabulary database (170+ words across 14 categories)
+- Grammar checker
+- Kannada → English translation
+- Quiz mode
+- User profiles with progress tracking
+- Smart caching — AI responses are cached in Firestore, reducing API usage over time
 
-View your app in AI Studio: https://ai.studio/apps/91c74008-005f-4f4e-b882-fc5cdd0ac2f1
+## Tech Stack
+- React 19 + TypeScript + Tailwind CSS v4
+- Express server (API proxy for Groq)
+- Llama 3.3 70B via Groq API
+- Firebase Auth (Google Sign-In) + Cloud Firestore
+- Docker for deployment
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+1. Install dependencies: `npm install`
+2. Copy `.env.example` to `.env.local` and add your Groq API key
+3. Run dev mode: `npm run dev`
 
+## Production (Docker)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+docker compose up --build -d
+```
+
+App runs at http://localhost:4173
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `GROQ_API_KEY` | Your Groq API key ([get one free](https://console.groq.com/keys)) |
