@@ -1,0 +1,113 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required) - User's unique ID
+    //   - email: string (required) - User's email
+    //   - displayName: string (optional) - User's name
+    //   - photoURL: string (optional) - User's photo URL
+    //   - createdAt: timestamp (required) - Account creation time
+    //   - lastLogin: timestamp (optional) - Last login time
+    //   - role: string (required) - User's role (user/admin)
+    //
+    // Collection: users/{userId}/savedWords
+    // Document ID: {wordId}
+    // Fields:
+    //   - userId: string (required) - Owner's UID
+    //   - word: string (required) - English word
+    //   - meaning: string (required) - English meaning
+    //   - kannadaTranslation: string (required) - Kannada translation
+    //   - pronunciation: string (required) - Pronunciation
+    //   - savedAt: timestamp (required) - Time saved
+    //
+    // Collection: users/{userId}/progress
+    // Document ID: stats
+    // Fields:
+    //   - userId: string (required) - Owner's UID
+    //   - wordsLearned: number (required) - Count of words learned
+    //   - quizzesTaken: number (required) - Count of quizzes taken
+    //   - averageScore: number (required) - Average quiz score
+    //   - lastActive: timestamp (required) - Last activity time
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "sudeepn142213@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'createdAt', 'role']) &&
+             data.uid == request.auth.uid &&
+             data.email is string &&
+             data.role in ['user', 'admin'];
+    }
+
+    function isValidSavedWord(data) {
+      return data.keys().hasAll(['userId', 'word', 'meaning', 'kannadaTranslation', 'pronunciation', 'savedAt']) &&
+             data.userId == request.auth.uid &&
+             data.word is string && data.word.size() > 0 && data.word.size() < 100 &&
+             data.meaning is string && data.meaning.size() > 0 && data.meaning.size() < 1000;
+    }
+
+    function isValidProgress(data) {
+      return data.keys().hasAll(['userId', 'wordsLearned', 'quizzesTaken', 'averageScore', 'lastActive']) &&
+             data.userId == request.auth.uid &&
+             data.wordsLearned is number &&
+             data.quizzesTaken is number;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == 'user';
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == resource.data.role;
+      
+      match /savedWords/{wordId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSavedWord(request.resource.data);
+        allow update: if isOwner(userId) && isValidSavedWord(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /progress/{docId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidProgress(request.resource.data);
+        allow update: if isOwner(userId) && isValidProgress(request.resource.data);
+      }
+    }
+
+    // Word cache: anyone can read, authenticated users can write (create new entries)
+    match /wordCache/{wordId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if false; // cached entries are immutable
+      allow delete: if isAdmin();
+    }
+
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}
