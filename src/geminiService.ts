@@ -124,6 +124,22 @@ Always respond with valid JSON matching this exact schema:
   return chatCompletion<TranslationResult>(systemPrompt, userPrompt, "translation");
 };
 
+// ── Bidirectional translation (for voice assistant) ──
+export const translateBidirectional = async (text: string): Promise<TranslationResult> => {
+  const systemPrompt = `You are a bidirectional Kannada-English translation assistant.
+Always respond with valid JSON matching this exact schema:
+{
+  "original": string,
+  "translated": string,
+  "explanation": string,
+  "grammarPoints": string[]
+}`;
+
+  const userPrompt = `Detect the language (Kannada or English) and translate the following text to the other language: "${text}". If it's Kannada (script or transliterated), translate to English. If it's English, translate to Kannada. Provide the translation, a detailed explanation in both languages, and key grammar points.`;
+
+  return chatCompletion<TranslationResult>(systemPrompt, userPrompt, "bidirectional translation");
+};
+
 // ── Grammar check (no cache — inputs are too varied) ──
 export const checkGrammar = async (text: string): Promise<GrammarCorrection> => {
   const systemPrompt = `You are an English grammar checker for Kannada medium students.
