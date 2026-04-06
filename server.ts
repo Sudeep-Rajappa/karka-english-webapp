@@ -13,6 +13,13 @@ if (!GROQ_API_KEY) {
 }
 
 app.use(express.json());
+
+// Service worker needs to be served from root with correct scope
+app.get('/sw.js', (_req, res) => {
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.sendFile(path.join(__dirname, 'dist', 'sw.js'));
+});
+
 app.use(express.static(path.join(__dirname, "dist")));
 
 // Rate limiting: simple in-memory per-IP limiter

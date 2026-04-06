@@ -1,0 +1,24 @@
+{
+  "name": "ಕಲೆ-NANDU - English for Kannada Students",
+  "short_name": "ಕಲೆ-NANDU",
+  "description": "Learn English with Kannada translations, grammar checker, voice assistant, and quizzes",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e1b4b",
+  "theme_color": "#1e1b4b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
