@@ -10,6 +10,8 @@ const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 if (!GROQ_API_KEY) {
   console.error("GROQ_API_KEY is not set. AI features will fail.");
+} else {
+  console.log("GROQ_API_KEY is set (length: " + GROQ_API_KEY.length + ")");
 }
 
 app.use(express.json());
@@ -77,8 +79,8 @@ app.post("/api/chat", rateLimit, async (req, res) => {
 
     if (!groqRes.ok) {
       const errText = await groqRes.text();
-      console.error("Groq API error:", groqRes.status, errText);
-      return res.status(502).json({ error: "AI service error. Please try again." });
+      console.error("Groq API error:", groqRes.status, groqRes.statusText, errText);
+      return res.status(502).json({ error: "AI service error. Please try again. Status: " + groqRes.status });
     }
 
     const data = await groqRes.json();
