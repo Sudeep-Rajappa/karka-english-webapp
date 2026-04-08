@@ -6,6 +6,3 @@ coverage/
 *.log
 .env*
 !.env.example
-
-# K8s secrets
-k8s/secret.yaml
